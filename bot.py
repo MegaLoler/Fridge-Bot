@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.5
 import discord
 import asyncio
 import json
@@ -233,7 +233,15 @@ class Entity():
 
 	# virtual function
 	async def action(self, interface, user, args):
-		await interface.print("Nothing happened.")
+		arg = " ".join(args).lower()
+		if arg == "poke":
+			await interface.print(user.name + " pokes the " + self.entity_name + ".  Not much happens.")
+		elif arg == "punch":
+			await interface.print(user.name + " picks a fight with the " + self.entity_name + ".  It takes a beating.  Don't worry, though, it's okay.")
+		elif arg == "eat":
+			await interface.print(user.name + " stuffs the " + self.entity_name + " in their mouth.")
+		else:
+			await interface.print("Nothing happened.")
 
 	# give a description of the current state of the thing
 	# virtual function
@@ -586,7 +594,7 @@ class StoreCommand(Command):
 			elif interface.get_fridge().is_full():
 				await interface.print("The fridge is full and won't handle anymore things stuffed into it!")
 			elif interface.get_fridge().remaining_space() < amount:
-				await interface.print("The fridge is too full to handle that many more things stuff inside of it!")
+				await interface.print("The fridge is too full to handle that many more things stuffed inside of it!")
 			else:
 				for i in range(amount):
 					entity = get_mini_fridge(str(user)).get_entity(entity_name)
@@ -632,7 +640,7 @@ class TakeCommand(Command):
 			elif get_mini_fridge(str(user)).is_full():
 				await interface.print(user.name + "'s minifridge is full and won't handle anymore things stuffed into it!")
 			elif get_mini_fridge(str(user)).remaining_space() < amount:
-				await interface.print(user.name + "'s minifridge is too full to handle that many more things stuff inside of it!")
+				await interface.print(user.name + "'s minifridge is too full to handle that many more things stuffed inside of it!")
 			else:
 				for i in range(amount):
 					entity = interface.get_fridge().get_entity(entity_name)
@@ -653,29 +661,67 @@ class DespawnCommand(Command):
 		super().__init__(["despawn", "destroy", "degenerate", "delete"], "Despawn a thing from the fridge.", CommandClass.admin, "The despawn command disintegrates a thing taken from the fridge of the channel used to invoke the command from all of Fridgeverse leaving no records of its former existence.", "[thing name]", 1)
 
 	async def action(self, interface, user, args=[]):
-		entity_name = " ".join(args)
-		entity = interface.get_fridge().get_entity(entity_name)
-		if entity == None:
-			await interface.print("No such _" + entity_name + "_ is in the fridge!")
+		if to_int(args[0]) != None:
+			amount = to_int(args.pop(0))
 		else:
-			entity.take()
-			await invoke_command(interface, user, "look")
-			save_world()
+			amount = 1
+		entity_name = " ".join(args)
+		if amount <= 0:
+			await interface.print("Nothing happened.")
+		else:
+			if amount != 1:
+				if entity_name.endswith("ies"):
+					entity_name = entity_name[:-3] + "y"
+				elif entity_name.endswith("les"):
+					entity_name = entity_name[:-1]
+				elif entity_name.endswith("es"):
+					entity_name = entity_name[:-2]
+				elif entity_name.endswith("s"):
+					entity_name = entity_name[:-1]
+			count = interface.get_fridge().count_entity(entity_name)
+			if count == 0:
+				await interface.print("No such _" + entity_name + "_ is in the fridge!")
+			elif amount > count:
+				await interface.print("There are only **" + str(count) + "** of **" + entity_name + "** in the fridge!")
+			else:
+				for i in range(amount):
+					interface.get_fridge().get_entity(entity_name).take()
+				await invoke_command(interface, user, "look")
+				save_world()
 
 class SpawnCommand(Command):
 	def __init__(self):
-		super().__init__(["spawn", "create", "generate", "add", "make"], "Spawn a new thing in the fridge.", CommandClass.admin, "The spawn command materializes a new thing and puts it in the fridge of the channel used to invoke the command.  The newly created thing is timestamped and marked with the name of the creator upon creation so that its age and creator can always be known by the _info_ command.\n\nIf the name of the thing to be created is a recognized _special type of thing_, then the thing will take on the _special properties and functionality_ of such special type of thing.  Otherwise it will take on _generic properties and functionality_.", "[thing name]", 1)
+		super().__init__(["spawn", "create", "generate", "add", "make"], "Spawn a new thing in the fridge.", CommandClass.admin, "The spawn command materializes a new thing and puts it in the fridge of the channel used to invoke the command.  The newly created thing is timestamped and marked with the name of the creator upon creation so that its age and creator can always be known by the _info_ command.\n\nIf the name of the thing to be created is a recognized _special type of thing_, then the thing will take on the _special properties and functionality_ of such special type of thing.  Otherwise it will take on _generic properties and functionality_.", "{amount} [thing name]", 1)
 
 	async def action(self, interface, user, args=[]):
-		if interface.get_fridge().is_full():
-				await interface.print("The fridge is full and won't handle anymore things stuffed into it!")
+		if to_int(args[0]) != None:
+			amount = to_int(args.pop(0))
 		else:
-			entity_name = " ".join(args)
-			entity = create_thing(entity_name)
-			entity.creator = str(user)
-			entity.put(interface.get_fridge())
-			await invoke_command(interface, user, "look")
-			save_world()
+			amount = 1
+		entity_name = " ".join(args)
+		if amount <= 0:
+			await interface.print("Nothing happened.")
+		else:
+			if amount != 1:
+				if entity_name.endswith("ies"):
+					entity_name = entity_name[:-3] + "y"
+				elif entity_name.endswith("les"):
+					entity_name = entity_name[:-1]
+				elif entity_name.endswith("es"):
+					entity_name = entity_name[:-2]
+				elif entity_name.endswith("s"):
+					entity_name = entity_name[:-1]
+			if interface.get_fridge().is_full():
+				await interface.print("The fridge is full and won't handle anymore things stuffed into it!")
+			elif interface.get_fridge().remaining_space() < amount:
+				await interface.print("The fridge is too full to handle that many more things stuffed inside of it!")
+			else:
+				for i in range(amount):
+					entity = create_thing(entity_name)
+					entity.creator = str(user)
+					entity.put(interface.get_fridge())
+				await invoke_command(interface, user, "look")
+				save_world()
 
 class InteractCommand(Command):
 	def __init__(self):
