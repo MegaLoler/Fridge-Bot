@@ -38,6 +38,7 @@ import random
 ### Configuration Stuff ###
 
 bot_trigger = "!"
+token_file = "token"
 permissions_file = "permissions.cfg"
 save_file = "fridgeverse.sav"
 log_file = "fridge.log"
@@ -1129,10 +1130,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
+    print("Connected as user " + client.user.name + " with id " + client.user.id + ".")
 
 @client.event
 async def on_message(message):
@@ -1152,7 +1150,11 @@ async def on_message(message):
 async def on_message_edit(before, after):
 	if logging: log(after)
 
+def get_token():
+	with open(token_file, "r") as f:
+		return f.read().strip()
+
 if __name__ == "__main__":
 	init_world()
 	init_permissions()
-	client.run('MjE4NDk1ODE2ODE2Mzk0MjQx.CqECGw.mmOCMD0zb3lQfLjtEFk3vnD7SEA')
+	client.run(get_token())
