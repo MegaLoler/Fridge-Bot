@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 import discord
 import asyncio
 import json
@@ -8,6 +8,32 @@ import datetime
 import dateutil.relativedelta
 import enum
 import random
+
+# Hi fellow source code readers!
+
+### Major Todo Stuff ###
+# figure out how coroutines actually work and make a properly working ConsoleInterface
+# ...as well as potentially adding interfaces to other chat services (chatango, skype, tinychat... irc... minecraft!)
+# add a locale / language system, and cleanup all the _super messy_ language manipulation code
+
+### Misc Todo Stuff ###
+# non fridge related roleplaying and utility commands
+# music generation command involving parsing solfege and playing through voice channels
+# a custom configuration file format would be nicer than the messy json currently used
+
+### Future Considerations Stuff ###
+# donate command (from one minifridge to another <3)
+# admin commmands for easily navigating and manipulating the entire Fridgeverse tree
+# user statistic commands, for roleplaying pursposes
+
+### Content Ideas and Stuff ###
+# ovens that cook (meaning adding ticks Fridgeverse)
+# tator tots and other food items to be cooked and eaten (meaning adding self deletion)
+# living creatures and pets! (meaning make use of ongioing interactions)
+# keys and combination locks (meaning commands that involve multiple items from the fridge)
+# alchemy things
+# messaging things, phones, bullitin boards... remote detonators...
+# augmented reality stuff?
 
 ### Configuration Stuff ###
 
