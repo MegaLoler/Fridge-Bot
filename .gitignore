@@ -1,0 +1,8 @@
+# ignore the bot's save files
+*.sav
+
+# ignore the bot's configuration files
+*.cfg
+
+# ignore the bot's log files
+*.log
