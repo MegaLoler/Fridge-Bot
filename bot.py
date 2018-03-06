@@ -93,7 +93,7 @@ class EnumEncoder(json.JSONEncoder):
             return {"__enum__": str(obj)}
         return json.JSONEncoder.default(self, obj)
 
-def as_enum(d):
+def as_enum(d): # Unsafe function. OK here since only used in load_permissions on a trusted config file.
     if "__enum__" in d:
         name, member = d["__enum__"].split(".")
         return getattr(globals()[name], member)
