@@ -93,7 +93,7 @@ class EnumEncoder(json.JSONEncoder):
             return {"__enum__": str(obj)}
         return json.JSONEncoder.default(self, obj)
 
-def as_enum(d):
+def as_enum(d): # Unsafe function. OK here since only used in load_permissions on a trusted config file.
     if "__enum__" in d:
         name, member = d["__enum__"].split(".")
         return getattr(globals()[name], member)
@@ -101,11 +101,11 @@ def as_enum(d):
         return d
 
 def save_permissions(save_file=permissions_file):
-	with open(save_file, "w") as f:
+	with open(save_file, "w", encoding='UTF-8') as f:
 		json.dump(permissions, f, cls=EnumEncoder)
 
 def load_permissions(save_file=permissions_file):
-	with open(save_file, "r") as f:
+	with open(save_file, "r", encoding='UTF-8') as f:
 		return json.load(f, object_hook=as_enum)
 
 def init_permissions():
@@ -123,7 +123,7 @@ ignore_messages = []
 ### Logging Stuff ###
 
 def log(message):
-	with open(log_file, "a") as f:
+	with open(log_file, "a", encoding='UTF-8') as f:
 		entry = "\t".join([str(message.id), str(message.timestamp), str(message.edited_timestamp), str(message.server), str(message.author), message.content])
 		f.write(entry + "\n")
 
@@ -1197,7 +1197,7 @@ async def on_message_edit(before, after):
 	if logging: log(after)
 
 def get_token():
-	with open(token_file, "r") as f:
+	with open(token_file, "r", encoding='UTF-8') as f:
 		return f.read().strip()
 
 if __name__ == "__main__":
